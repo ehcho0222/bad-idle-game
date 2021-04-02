@@ -1,5 +1,5 @@
 var player = {
-    version: 0.20,
+    version: 0.21,
     point: 0,
     pointPerClick: 1,
     pointPerClickCost: 10,
@@ -8,12 +8,31 @@ var player = {
     lastTick: 0
 }
 
+function tab(tab) {
+    document.getElementById("produceMenu").style.display = "none"
+    document.getElementById("shopMenu").style.display = "none"
+    document.getElementById("settingMenu").style.display = "none"
+    document.getElementById(tab).style.display = "block"
+}
+
+function update(id, content) {
+    document.getElementById(id).innerHTML = content;
+}
+
+function format(number, type) {
+	let exponent = Math.floor(Math.log10(number))
+	let mantissa = number / Math.pow(10, exponent)
+	if (exponent < 3) return number.toFixed(0)
+	if (type == "scientific") return mantissa.toFixed(2) + "e" + exponent
+	if (type == "engineering") return (Math.pow(10, exponent % 3) * mantissa).toFixed(2) + "e" + (Math.floor(exponent / 3) * 3)
+}
+
 function clickPoint() {
     player.point += player.pointPerClick
-    document.getElementById("a00").innerHTML = player.point + " Point"
+    update("point", format(player.point, "scientific") + " Point")
     if (player.point != 1)
     {
-        document.getElementById("a00").innerHTML = document.getElementById("a00").innerHTML + "s"
+        update("point", document.getElementById("point").innerHTML + "s")
     }
 }
 
@@ -23,23 +42,27 @@ function upgradeClick() {
         player.point -= player.pointPerClickCost
         player.pointPerClick += 1
         player.pointPerClickCost = player.pointPerClick * player.pointPerClick * 10
-        document.getElementById("a00").innerHTML = player.point + " Point"
+        update("point", format(player.point, "scientific") + " Point")
         if (player.point != 1)
         {
-            document.getElementById("a00").innerHTML = document.getElementById("a00").innerHTML + "s"
+            update("point", document.getElementById("point").innerHTML + "s")
         }
-        document.getElementById("a01").innerHTML = "Earn " + player.pointPerClick + " Points"
-        document.getElementById("a02").innerHTML = "Upgrade Click: Level " + player.pointPerClick + " (Costs " + player.pointPerClickCost + " Points)"
+        update("a01", "Earn " + format(player.pointPerClick, "scientific") + " Point")
+        if (player.pointPerClick != 1)
+        {
+            update("a01", document.getElementById("a01").innerHTML + "s")
+        }
+        update("b01", "Upgrade Click: Level " + format(player.pointPerClick, "scientific") + " (Costs " + format(player.pointPerClickCost, "scientific") + " Points)")
     }
 }
 
 function autoPoint(ms) {
     player.point += (player.autoPointLevel * player.autoPointLevel * ms / 1000)
-    document.getElementById("a03").innerHTML = (player.autoPointLevel * player.autoPointLevel) + " Points/sec"
-    document.getElementById("a00").innerHTML = player.point + " Point"
+    document.getElementById("pps").innerHTML = (player.autoPointLevel * player.autoPointLevel) + " Points/sec"
+    update("point", format(player.point, "scientific") + " Point")
     if (player.point != 1)
     {
-        document.getElementById("a00").innerHTML = document.getElementById("a00").innerHTML + "s"
+        update("point", document.getElementById("point").innerHTML + "s")
     }
 }
 
@@ -49,13 +72,12 @@ function upgradeAutoPoint() {
         player.point -= player.autoPointCost
         player.autoPointLevel += 1
         player.autoPointCost = player.autoPointLevel * player.autoPointLevel * player.autoPointLevel * 100
-        document.getElementById("a00").innerHTML = player.point + " Point"
+        update("point", format(player.point, "scientific") + " Point")
         if (player.point != 1)
         {
-            document.getElementById("a00").innerHTML = document.getElementById("a00").innerHTML + "s"
+            update("point", document.getElementById("point").innerHTML + "s")
         }
-        document.getElementById("a01").innerHTML = "Earn " + player.pointPerClick + " Points"
-        document.getElementById("a04").innerHTML = "Upgrade Auto: Level " + player.autoPointLevel + " (Costs " + player.autoPointCost + " Points)"
+        update("b02", "Upgrade Auto: Level " + format(player.autoPointLevel, "scientific") + " (Costs " + format(player.autoPointCost, "scientific") + " Points)")
     }
 }
 
@@ -66,6 +88,7 @@ function hardReset() {
     player.autoPointLevel = 0
     player.autoPointCost = 100
     player.lastTick = Date.now()
+    tab(produceMenu)
 }
 
 var savegame = JSON.parse(localStorage.getItem("badIdleSave"))
@@ -81,8 +104,13 @@ if (savegame !== null) {
 var gameLoop = window.setInterval(function() {
     diff = Date.now() - player.lastTick
     player.lastTick = Date.now()
-    document.getElementById("a02").innerHTML = "Upgrade Click: Level " + player.pointPerClick + " (Costs " + player.pointPerClickCost + " Points)"
-    document.getElementById("a04").innerHTML = "Upgrade Auto: Level " + player.autoPointLevel + " (Costs " + player.autoPointCost + " Points)"
+    update("b01", "Upgrade Click: Level " + format(player.pointPerClick, "scientific") + " (Costs " + format(player.pointPerClickCost, "scientific") + " Points)")
+    update("b02", "Upgrade Auto: Level " + format(player.autoPointLevel, "scientific") + " (Costs " + format(player.autoPointCost, "scientific") + " Points)")
+    update("a01", "Earn " + format(player.pointPerClick, "scientific") + " Point")
+    if (player.pointPerClick != 1)
+    {
+        update("a01", document.getElementById("a01").innerHTML + "s")
+    }
     autoPoint(diff)
 }, 1000)
 
