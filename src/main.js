@@ -4,7 +4,8 @@ var player = {
     pointPerClick: 1,
     pointPerClickCost: 10,
     autoPointLevel: 0,
-    autoPointCost: 100
+    autoPointCost: 100,
+    lastTick: Date.now()
 }
 
 function clickPoint() {
@@ -32,8 +33,8 @@ function upgradeClick() {
     }
 }
 
-function autoPoint() {
-    player.point += (player.autoPointLevel * player.autoPointLevel)
+function autoPoint(ms) {
+    player.point += (player.autoPointLevel * player.autoPointLevel * ms / 1000)
     document.getElementById("a03").innerHTML = (player.autoPointLevel * player.autoPointLevel) + " Points/sec"
     document.getElementById("a00").innerHTML = player.point + " Point"
     if (player.point != 1)
@@ -60,11 +61,19 @@ function upgradeAutoPoint() {
 
 var savegame = JSON.parse(localStorage.getItem("badIdleSave"))
 if (savegame !== null) {
-  player = savegame
+    if (typeof savegame.version !== "undefined") player.version = savegame.version
+    if (typeof savegame.point !== "undefined") player.point = savegame.point
+    if (typeof savegame.pointPerClick !== "undefined") player.pointPerClick = savegame.pointPerClick
+    if (typeof savegame.pointPerClickCost !== "undefined") player.pointPerClickCost = savegame.pointPerClickCost
+    if (typeof savegame.autoPointLevel !== "undefined") player.autoPointLevel = savegame.autoPointLevel
+    if (typeof savegame.autoPointCost !== "undefined") player.autoPointCost = savegame.autoPointCost
+    if (typeof savegame.lastTick !== "undefined") player.lastTick = savegame.lastTick
 }
 
 var gameLoop = window.setInterval(function() {
-    autoPoint()
+    diff = Date.now() - player.lastTick
+    player.lastTick = Date.now()
+    autoPoint(diff)
 }, 1000)
 
 var saveLoop = window.setInterval(function() {
