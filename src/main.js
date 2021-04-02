@@ -55,13 +55,21 @@ function upgradeAutoPoint() {
             document.getElementById("a00").innerHTML = document.getElementById("a00").innerHTML + "s"
         }
         document.getElementById("a01").innerHTML = "Earn " + player.pointPerClick + " Points"
-        document.getElementById("a02").innerHTML = "Upgrade Auto: Level " + player.autoPointLevel + " (Costs " + player.autoPointCost + " Points)"
+        document.getElementById("a04").innerHTML = "Upgrade Auto: Level " + player.autoPointLevel + " (Costs " + player.autoPointCost + " Points)"
     }
+}
+
+function hardReset() {
+    player.point = 0
+    player.pointPerClick = 1
+    player.pointPerClickCost = 10
+    player.autoPointLevel = 0
+    player.autoPointCost = 100
+    player.lastTick = Date.now()
 }
 
 var savegame = JSON.parse(localStorage.getItem("badIdleSave"))
 if (savegame !== null) {
-    if (typeof savegame.version !== "undefined") player.version = savegame.version
     if (typeof savegame.point !== "undefined") player.point = savegame.point
     if (typeof savegame.pointPerClick !== "undefined") player.pointPerClick = savegame.pointPerClick
     if (typeof savegame.pointPerClickCost !== "undefined") player.pointPerClickCost = savegame.pointPerClickCost
@@ -73,6 +81,8 @@ if (savegame !== null) {
 var gameLoop = window.setInterval(function() {
     diff = Date.now() - player.lastTick
     player.lastTick = Date.now()
+    document.getElementById("a02").innerHTML = "Upgrade Click: Level " + player.pointPerClick + " (Costs " + player.pointPerClickCost + " Points)"
+    document.getElementById("a04").innerHTML = "Upgrade Auto: Level " + player.autoPointLevel + " (Costs " + player.autoPointCost + " Points)"
     autoPoint(diff)
 }, 1000)
 
