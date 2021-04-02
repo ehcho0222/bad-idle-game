@@ -5,7 +5,7 @@ var player = {
     pointPerClickCost: 10,
     autoPointLevel: 0,
     autoPointCost: 100,
-    lastTick: Date.now()
+    lastTick: 0
 }
 
 function clickPoint() {
